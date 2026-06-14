@@ -257,7 +257,9 @@
       <button type="button" id="generateBtn" class="btn-primary">
         ⬇ Generate .docx
       </button>
+      <button type="button" id="clearBtn" class="btn-secondary">New Lesson (Clear Form)</button>
       <p id="status-msg" class="status-msg"></p>
+      <span id="autosave-indicator" class="status-msg" style="opacity:0;transition:opacity .3s;color:#16a34a;">Saved ✓</span>
     </section>
 
   </main>
@@ -267,7 +269,7 @@
   </footer>
 
   <!-- docx library via CDN (UMD build) -->
-  <script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="generate.js"></script>
 
 </body>
