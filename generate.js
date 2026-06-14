@@ -16,19 +16,28 @@ const PAGE_H = 15840;      // 11 in in DXA
 const MARGIN = 1080;       // 0.75 in margins
 const CONTENT_W = PAGE_W - MARGIN * 2; // 10080 DXA
 
-// Section accent colors (hex, no #)
+// ── Color palette (exact values extracted from the official template) ──
+// The template uses ONE teal "chapter color" for every section banner within a
+// lesson, an orange accent on the title page, dark-gray body text (#333333),
+// near-black headings (#111111), a light-green callout fill, and gray table fills.
+const CHAPTER = "0EAFD9";   // teal — all section banners (EVALUATE/LEARN/PRACTICE/SERVE)
 const COLOR = {
-  evaluate: "1A6EA8",
-  learn:    "2E7D32",
-  practice: "B45309",
-  serve:    "7B3FA0",
-  gray:     "F3F4F6",
+  chapter:  CHAPTER,        // teal banner fill + Read/Discuss/Watch/Ponder labels
+  evaluate: CHAPTER,
+  learn:    CHAPTER,
+  practice: CHAPTER,
+  serve:    CHAPTER,
+  titleBand:"E66A1F",       // orange band on the lesson title page
+  callout:  "E3F0D4",       // light-green "Discuss"/learn callout background
+  gray:     "EFEFEF",       // gray table/quote fills
   grayText: "4B5563",
   muted:    "6B7280",
-  black:    "1A1A2E",
+  black:    "111111",       // headings / section titles
+  body:     "333333",       // body text (dark gray, NOT pure black)
   white:    "FFFFFF",
-  border:   "D1D5DB",
-  headerBg: "1A1A2E",
+  border:   "CCCCCC",       // table borders (template uses #CCCCCC)
+  headerBg: "EFEFEF",       // table header fill (light gray, dark text)
+  headerText:"111111",      // table header text
 };
 
 /* ── Helpers ── */
@@ -44,7 +53,7 @@ function run(text, opts = {}) {
     size: opts.size || 22,           // pt × 2 (half-points); 22 = 11pt default
     bold: opts.bold || false,
     italics: opts.italics || false,
-    color: opts.color || COLOR.black,
+    color: opts.color || COLOR.body,
     ...opts._extra,
   });
 }
@@ -130,7 +139,7 @@ function stepLabel(stepNum, title, timeNote = "") {
 function readLabel() {
   const { docx } = window;
   return new docx.Paragraph({
-    children: [new docx.TextRun({ text: "Read:", font: FONT, size: 28, bold: true, color: COLOR.black })],
+    children: [new docx.TextRun({ text: "Read:", font: FONT, size: 28, bold: true, color: COLOR.chapter })],
     spacing: { before: 140, after: 60, line: 360 },
   });
 }
@@ -139,7 +148,7 @@ function readLabel() {
 function discussLabel() {
   const { docx } = window;
   return new docx.Paragraph({
-    children: [new docx.TextRun({ text: "Discuss:", font: FONT, size: 28, bold: true, color: COLOR.black })],
+    children: [new docx.TextRun({ text: "Discuss:", font: FONT, size: 28, bold: true, color: COLOR.chapter })],
     spacing: { before: 140, after: 60, line: 360 },
   });
 }
@@ -148,7 +157,7 @@ function discussLabel() {
 function watchLabel() {
   const { docx } = window;
   return new docx.Paragraph({
-    children: [new docx.TextRun({ text: "Watch:", font: FONT, size: 28, bold: true, color: COLOR.black })],
+    children: [new docx.TextRun({ text: "Watch:", font: FONT, size: 28, bold: true, color: COLOR.chapter })],
     spacing: { before: 140, after: 60, line: 360 },
   });
 }
@@ -157,7 +166,7 @@ function watchLabel() {
 function ponderLabel() {
   const { docx } = window;
   return new docx.Paragraph({
-    children: [new docx.TextRun({ text: "Ponder:", font: FONT, size: 28, bold: true, color: COLOR.black })],
+    children: [new docx.TextRun({ text: "Ponder:", font: FONT, size: 28, bold: true, color: COLOR.chapter })],
     spacing: { before: 140, after: 60, line: 360 },
   });
 }
@@ -341,7 +350,7 @@ function makeHeaderCell(text, width, bgColor) {
     margins: { top: 80, bottom: 80, left: 120, right: 120 },
     children: [
       new docx.Paragraph({
-        children: [new docx.TextRun({ text, font: FONT, size: 26, bold: true, color: COLOR.white })],
+        children: [new docx.TextRun({ text, font: FONT, size: 26, bold: true, color: COLOR.headerText })],
         spacing: { before: 40, after: 40, line: 300 },
       }),
     ],
@@ -661,17 +670,48 @@ function buildDocument(d) {
 
   const children = [];
 
-  /* ===== LESSON TITLE ===== */
+  /* ===== LESSON TITLE PAGE (orange band + circled number + title) ===== */
+  // Orange accent band spanning the content width
   children.push(
     new docx.Paragraph({
-      children: [
-        new docx.TextRun({ text: `LESSON ${d.lessonNumber}`, font: FONT, size: 48, bold: true, color: COLOR.muted }),
-      ],
-      spacing: { before: 0, after: 60, line: 360 },
-    }),
+      children: [new docx.TextRun({ text: "", font: FONT, size: 8 })],
+      shading: { fill: COLOR.titleBand, type: docx.ShadingType.CLEAR, color: "auto" },
+      spacing: { before: 0, after: 0, line: 240 },
+      border: {
+        top:    { style: docx.BorderStyle.SINGLE, size: 24, color: COLOR.titleBand, space: 0 },
+        bottom: { style: docx.BorderStyle.SINGLE, size: 24, color: COLOR.titleBand, space: 0 },
+      },
+    })
+  );
+  // Circled chapter number, centered
+  children.push(
     new docx.Paragraph({
-      children: [new docx.TextRun({ text: d.lessonTitle.toUpperCase() || "LESSON TITLE", font: FONT, size: 80, bold: true, color: COLOR.black })],
-      spacing: { before: 0, after: 120, line: 400 },
+      alignment: docx.AlignmentType.CENTER,
+      spacing: { before: 240, after: 80, line: 360 },
+      children: [
+        new docx.TextRun({ text: `\u2460`, font: FONT, size: 40, bold: false, color: COLOR.titleBand }),
+      ],
+    })
+  );
+  // Lesson number (small, muted, above title)
+  children.push(
+    new docx.Paragraph({
+      alignment: docx.AlignmentType.CENTER,
+      spacing: { before: 0, after: 200, line: 240 },
+      children: [
+        new docx.TextRun({ text: `LESSON ${d.lessonNumber}`, font: FONT, size: 28, bold: true, color: COLOR.muted }),
+      ],
+    })
+  );
+  // Lesson title (40pt, centered, near-black). line:560 ≈ 2.3× gives 40pt glyphs
+  // room so the top line never rides up into the lesson number above.
+  children.push(
+    new docx.Paragraph({
+      alignment: docx.AlignmentType.CENTER,
+      spacing: { before: 120, after: 280, line: 560, lineRule: docx.LineRuleType.AUTO },
+      children: [
+        new docx.TextRun({ text: (d.lessonTitle || "LESSON TITLE").toUpperCase(), font: FONT, size: 80, bold: true, color: COLOR.black }),
+      ],
     })
   );
 
@@ -967,6 +1007,13 @@ async function generateDocx() {
   status.className = "status-msg";
 
   try {
+    if (!window.docx || !window.docx.Document) {
+      status.textContent = "The document library failed to load. Check your internet connection and refresh the page.";
+      status.className = "status-msg error";
+      btn.disabled = false;
+      return;
+    }
+
     const data = collectFormData();
 
     if (!data.lessonTitle) {
@@ -977,8 +1024,7 @@ async function generateDocx() {
     }
 
     const doc = buildDocument(data);
-    const buffer = await window.docx.Packer.toBuffer(doc);
-    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    const blob = await window.docx.Packer.toBlob(doc);
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1000,21 +1046,141 @@ async function generateDocx() {
   }
 }
 
+/* ── Persistence: auto-save / auto-load via localStorage ── */
+const STORAGE_KEY = "srm_autosave";
+
+/** Capture the full form state into a plain object. */
+function captureState() {
+  const data = { byId: {}, psh: [], tableHeaders: [], tableRows: [] };
+  document.querySelectorAll("input[id], textarea[id], select[id]").forEach(el => {
+    data.byId[el.id] = el.value;
+  });
+  document.querySelectorAll(".psh-item").forEach(el => data.psh.push(el.value));
+  document.querySelectorAll(".table-col-header").forEach(el => data.tableHeaders.push(el.value));
+  document.querySelectorAll("#activity-table-rows .table-data-row").forEach(row => {
+    data.tableRows.push([...row.querySelectorAll("input")].map(i => i.value));
+  });
+  return data;
+}
+
+/** Save current state to localStorage. */
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(captureState()));
+    showSavedIndicator();
+  } catch (e) {
+    console.warn("Auto-save failed:", e);
+  }
+}
+
+/** Restore state from localStorage into the form. */
+function restoreState() {
+  let raw;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
+  if (!raw) return;
+
+  let data;
+  try { data = JSON.parse(raw); } catch (e) { return; }
+
+  if (data.byId) {
+    Object.entries(data.byId).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+  }
+
+  if (Array.isArray(data.psh)) {
+    const items = document.querySelectorAll(".psh-item");
+    data.psh.forEach((val, i) => { if (items[i]) items[i].value = val; });
+  }
+
+  if (Array.isArray(data.tableHeaders)) {
+    const headers = document.querySelectorAll(".table-col-header");
+    data.tableHeaders.forEach((val, i) => { if (headers[i]) headers[i].value = val; });
+  }
+
+  if (Array.isArray(data.tableRows)) {
+    const container = document.getElementById("activity-table-rows");
+    if (container) {
+      // Add rows until we have enough to hold the saved data
+      while (container.querySelectorAll(".table-data-row").length < data.tableRows.length) {
+        addTableRow();
+      }
+      const rows = container.querySelectorAll(".table-data-row");
+      data.tableRows.forEach((rowVals, r) => {
+        const inputs = rows[r] ? rows[r].querySelectorAll("input") : [];
+        rowVals.forEach((val, c) => { if (inputs[c]) inputs[c].value = val; });
+      });
+    }
+  }
+}
+
+/** Debounced auto-save trigger. */
+let _saveTimer;
+function scheduleSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveState, 400);
+}
+
+/** Briefly flash the "Saved ✓" indicator. */
+function showSavedIndicator() {
+  const el = document.getElementById("autosave-indicator");
+  if (!el) return;
+  el.style.opacity = "1";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = "0"; }, 1400);
+}
+
+/** Add a blank 3-column row to the activity table. */
+function addTableRow() {
+  const container = document.getElementById("activity-table-rows");
+  const rowCount = container.querySelectorAll(".table-data-row").length + 1;
+  const div = document.createElement("div");
+  div.className = "table-data-row";
+  div.innerHTML = `
+    <input type="text" placeholder="Row ${rowCount}, Col 1" />
+    <input type="text" placeholder="Row ${rowCount}, Col 2" />
+    <input type="text" placeholder="Row ${rowCount}, Col 3" />
+  `;
+  container.appendChild(div);
+}
+
+/** Clear the entire form and wipe saved state (start a new lesson). */
+function clearForm() {
+  if (!confirm("Clear the form to start a new lesson? Your current entries will be erased.")) return;
+
+  document.querySelectorAll("input[type='text'], input[type='url'], textarea").forEach(el => {
+    el.value = "";
+  });
+  const sel = document.getElementById("lessonNumber");
+  if (sel) sel.selectedIndex = 0;
+
+  // Remove extra activity-table rows beyond the original three
+  const container = document.getElementById("activity-table-rows");
+  if (container) {
+    const rows = [...container.querySelectorAll(".table-data-row")];
+    rows.forEach((row, i) => {
+      if (i >= 3) row.remove();
+      else row.querySelectorAll("input").forEach(inp => (inp.value = ""));
+    });
+  }
+
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+
+  const status = document.getElementById("status-msg");
+  if (status) { status.textContent = ""; status.className = "status-msg"; }
+}
+
 /* ── Wire up ── */
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("generateBtn").addEventListener("click", generateDocx);
+  // Restore saved work first, before listeners are attached
+  restoreState();
 
-  /* Dynamic "Add Row" button for activity table */
-  document.getElementById("add-table-row").addEventListener("click", () => {
-    const container = document.getElementById("activity-table-rows");
-    const rowCount = container.querySelectorAll(".table-data-row").length + 1;
-    const div = document.createElement("div");
-    div.className = "table-data-row";
-    div.innerHTML = `
-      <input type="text" placeholder="Row ${rowCount}, Col 1" />
-      <input type="text" placeholder="Row ${rowCount}, Col 2" />
-      <input type="text" placeholder="Row ${rowCount}, Col 3" />
-    `;
-    container.appendChild(div);
-  });
+  document.getElementById("generateBtn").addEventListener("click", generateDocx);
+  document.getElementById("clearBtn").addEventListener("click", clearForm);
+  document.getElementById("add-table-row").addEventListener("click", addTableRow);
+
+  // Auto-save on any edit (event delegation covers dynamically-added rows)
+  document.addEventListener("input", scheduleSave);
+  document.addEventListener("change", scheduleSave);
 });
