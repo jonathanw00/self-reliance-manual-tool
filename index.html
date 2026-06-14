@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Reliance Manual Content Entry Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Self-Reliance Manual Content Entry Tool</h1>
+    <p class="subtitle">Fill in the lesson content below, then generate a formatted .docx file.</p>
+  </header>
+
+  <main>
+    <!-- Lesson Selector -->
+    <section class="card" id="lesson-selector">
+      <label for="lessonNumber"><strong>Lesson Number</strong></label>
+      <select id="lessonNumber">
+        <option value="1">Lesson 1</option>
+        <option value="2">Lesson 2</option>
+        <option value="3">Lesson 3</option>
+        <option value="4">Lesson 4</option>
+      </select>
+    </section>
+
+    <!-- LESSON HEADER -->
+    <section class="card" id="section-header">
+      <h2 class="section-label">Lesson Header</h2>
+
+      <div class="field-group">
+        <label for="lessonTitle">Lesson Title <span class="hint">(large heading at top of lesson)</span></label>
+        <input type="text" id="lessonTitle" placeholder="e.g. Finding Work" />
+      </div>
+
+      <div class="field-group">
+        <label>Principles, Skills, and Habits <span class="hint">(up to 4 bullet points)</span></label>
+        <input type="text" class="psh-item" placeholder="Major concept 1" />
+        <input type="text" class="psh-item" placeholder="Major concept 2" />
+        <input type="text" class="psh-item" placeholder="Major concept 3" />
+        <input type="text" class="psh-item" placeholder="Major concept 4 (optional)" />
+      </div>
+    </section>
+
+    <!-- EVALUATE -->
+    <section class="card" id="section-evaluate">
+      <h2 class="section-label section-label--evaluate">Evaluate <span class="time-note">(8 min)</span></h2>
+
+      <div class="reminder-box" id="practice-reminder">
+        ⚠️ <strong>Reminder:</strong> The "This Last Week I Practiced" commitments (A–C) should be copied from the <em>prior lesson's</em> Practice section. Leave blank for Lesson 1.
+      </div>
+
+      <div class="field-group">
+        <label>Prior Week Practice Commitments <span class="hint">(A–C from last lesson's Practice section)</span></label>
+        <div class="commitment-row">
+          <span class="commitment-label">A</span>
+          <input type="text" class="eval-commitment" id="evalA" placeholder="Prior practice commitment A (blank for Lesson 1)" />
+        </div>
+        <div class="commitment-row">
+          <span class="commitment-label">B</span>
+          <input type="text" class="eval-commitment" id="evalB" placeholder="Prior practice commitment B" />
+        </div>
+        <div class="commitment-row">
+          <span class="commitment-label">C</span>
+          <input type="text" class="eval-commitment" id="evalC" placeholder="Prior practice commitment C" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="evaluateDiscuss">Discuss Questions <span class="hint">(Step 2 — discussion prompts for sharing experience)</span></label>
+        <textarea id="evaluateDiscuss" rows="3" placeholder="e.g. What successes did you have this week? What was challenging?"></textarea>
+      </div>
+    </section>
+
+    <!-- LEARN -->
+    <section class="card" id="section-learn">
+      <h2 class="section-label section-label--learn">Learn <span class="time-note">(40 min)</span></h2>
+
+      <div class="field-group">
+        <label>Today We Will Learn <span class="hint">(2 principles listed in the header box)</span></label>
+        <input type="text" id="learnPrinciple1" placeholder="Principle 1 covered" />
+        <input type="text" id="learnPrinciple2" placeholder="Principle 2 covered" />
+      </div>
+
+      <!-- Learn Section 1 -->
+      <div class="learn-section" id="learn-section-1">
+        <h3 class="subsection-label">Section 1</h3>
+
+        <div class="field-group">
+          <label for="learnSection1Title">Section Title</label>
+          <input type="text" id="learnSection1Title" placeholder="e.g. Finding Strength Through Faith" />
+        </div>
+
+        <div class="field-group">
+          <label for="learnSection1Read1">Read (main text)</label>
+          <textarea id="learnSection1Read1" rows="4" placeholder="Main reading text for section 1..."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="learnSection1Quote">Scripture / Quote Block <span class="hint">(optional — italicized gray block)</span></label>
+          <textarea id="learnSection1Quote" rows="3" placeholder='"Quote or scripture text here..."'></textarea>
+          <input type="text" id="learnSection1QuoteSource" placeholder="— Source name and reference" />
+        </div>
+
+        <div class="field-group">
+          <label for="learnSection1Discuss">Discuss <span class="hint">(discussion question or prompt)</span></label>
+          <textarea id="learnSection1Discuss" rows="2" placeholder="Discussion prompt for section 1..."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="learnSection1Read2">Additional Read <span class="hint">(optional second reading block)</span></label>
+          <textarea id="learnSection1Read2" rows="3" placeholder="Optional second reading..."></textarea>
+        </div>
+      </div>
+
+      <!-- Learn Section 2 -->
+      <div class="learn-section" id="learn-section-2">
+        <h3 class="subsection-label">Section 2</h3>
+
+        <div class="field-group">
+          <label for="learnSection2Title">Section Title</label>
+          <input type="text" id="learnSection2Title" placeholder="e.g. Building Skills for Self-Reliance" />
+        </div>
+
+        <div class="field-group">
+          <label for="learnSection2Read1">Read (main text)</label>
+          <textarea id="learnSection2Read1" rows="4" placeholder="Main reading text for section 2..."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="learnSection2Quote">Scripture / Quote Block <span class="hint">(optional)</span></label>
+          <textarea id="learnSection2Quote" rows="3" placeholder='"Quote or scripture text here..."'></textarea>
+          <input type="text" id="learnSection2QuoteSource" placeholder="— Source name and reference" />
+        </div>
+
+        <div class="field-group">
+          <label for="learnSection2Discuss">Discuss</label>
+          <textarea id="learnSection2Discuss" rows="2" placeholder="Discussion prompt for section 2..."></textarea>
+        </div>
+      </div>
+
+      <!-- Video / Watch -->
+      <div class="learn-section" id="learn-video">
+        <h3 class="subsection-label">Watch (Video)</h3>
+
+        <div class="field-group">
+          <label for="videoTitle">Video Title</label>
+          <input type="text" id="videoTitle" placeholder="e.g. Faith and Self-Reliance in Vanuatu" />
+        </div>
+
+        <div class="field-group">
+          <label for="videoUrl">Video URL <span class="hint">(link to ChurchofJesusChrist.org/media)</span></label>
+          <input type="url" id="videoUrl" placeholder="https://www.churchofjesuschrist.org/media/video/..." />
+        </div>
+
+        <div class="field-group">
+          <label for="videoTranscript">Video Transcript</label>
+          <textarea id="videoTranscript" rows="6" placeholder="Full transcript of the video..."></textarea>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="learn-section" id="learn-activity">
+        <h3 class="subsection-label">Activity <span class="time-note">(4 min)</span></h3>
+
+        <div class="field-group">
+          <label for="activityStep1">Step 1 Text</label>
+          <textarea id="activityStep1" rows="2" placeholder="Step 1 instructions..."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="activityStep2">Step 2 Text</label>
+          <textarea id="activityStep2" rows="2" placeholder="Step 2 instructions..."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="activityStep3">Step 3 Text <span class="hint">(optional)</span></label>
+          <textarea id="activityStep3" rows="2" placeholder="Step 3 instructions (optional)..."></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Activity Table <span class="hint">(optional — 3 columns; leave blank to omit)</span></label>
+          <div class="table-headers">
+            <input type="text" class="table-col-header" placeholder="Column 1 Header" />
+            <input type="text" class="table-col-header" placeholder="Column 2 Header" />
+            <input type="text" class="table-col-header" placeholder="Column 3 Header" />
+          </div>
+          <div id="activity-table-rows">
+            <div class="table-data-row">
+              <input type="text" placeholder="Row 1, Col 1" />
+              <input type="text" placeholder="Row 1, Col 2" />
+              <input type="text" placeholder="Row 1, Col 3" />
+            </div>
+            <div class="table-data-row">
+              <input type="text" placeholder="Row 2, Col 1" />
+              <input type="text" placeholder="Row 2, Col 2" />
+              <input type="text" placeholder="Row 2, Col 3" />
+            </div>
+            <div class="table-data-row">
+              <input type="text" placeholder="Row 3, Col 1" />
+              <input type="text" placeholder="Row 3, Col 2" />
+              <input type="text" placeholder="Row 3, Col 3" />
+            </div>
+          </div>
+          <button type="button" class="btn-secondary btn-small" id="add-table-row">+ Add Row</button>
+        </div>
+
+        <div class="field-group">
+          <label for="activityPonder">Ponder</label>
+          <textarea id="activityPonder" rows="3" placeholder="Ponder prompt or reflection question..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section class="card" id="section-practice">
+      <h2 class="section-label section-label--practice">Practice <span class="time-note">(8 min)</span></h2>
+
+      <p class="section-note">These commitments will appear in the next lesson's Evaluate section. Keep them simple, measurable, and achievable.</p>
+
+      <div class="field-group">
+        <label>Practice Commitments</label>
+        <div class="commitment-row">
+          <span class="commitment-label">A</span>
+          <input type="text" class="practice-commitment" id="practiceA" placeholder="Practice commitment A" />
+        </div>
+        <div class="commitment-row">
+          <span class="commitment-label">B</span>
+          <input type="text" class="practice-commitment" id="practiceB" placeholder="Practice commitment B" />
+        </div>
+        <div class="commitment-row">
+          <span class="commitment-label">C</span>
+          <input type="text" class="practice-commitment" id="practiceC" placeholder="Practice commitment C" />
+        </div>
+        <div class="commitment-row dimmed">
+          <span class="commitment-label">D</span>
+          <span class="commitment-fixed">Leave blank — for participant's inspired idea</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVE -->
+    <section class="card" id="section-serve">
+      <h2 class="section-label section-label--serve">Serve <span class="time-note">(8 min)</span></h2>
+
+      <div class="field-group">
+        <label for="serveCustomExample">Custom Serve Example <span class="hint">(fills in the "you might think about..." prompt)</span></label>
+        <input type="text" id="serveCustomExample" placeholder="e.g. sharing what you learned today with a friend or your family" />
+      </div>
+    </section>
+
+    <!-- Generate Button -->
+    <section class="generate-section">
+      <button type="button" id="generateBtn" class="btn-primary">
+        ⬇ Generate .docx
+      </button>
+      <p id="status-msg" class="status-msg"></p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Self-Reliance Manual Content Entry Tool &mdash; Internal Use Only</p>
+  </footer>
+
+  <!-- docx library via CDN (UMD build) -->
+  <script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+  <script src="generate.js"></script>
+
+</body>
+</html>
