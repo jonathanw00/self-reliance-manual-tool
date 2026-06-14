@@ -967,6 +967,13 @@ async function generateDocx() {
   status.className = "status-msg";
 
   try {
+    if (!window.docx || !window.docx.Document) {
+      status.textContent = "The document library failed to load. Check your internet connection and refresh the page.";
+      status.className = "status-msg error";
+      btn.disabled = false;
+      return;
+    }
+
     const data = collectFormData();
 
     if (!data.lessonTitle) {
@@ -977,8 +984,7 @@ async function generateDocx() {
     }
 
     const doc = buildDocument(data);
-    const buffer = await window.docx.Packer.toBuffer(doc);
-    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    const blob = await window.docx.Packer.toBlob(doc);
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1000,21 +1006,141 @@ async function generateDocx() {
   }
 }
 
+/* ── Persistence: auto-save / auto-load via localStorage ── */
+const STORAGE_KEY = "srm_autosave";
+
+/** Capture the full form state into a plain object. */
+function captureState() {
+  const data = { byId: {}, psh: [], tableHeaders: [], tableRows: [] };
+  document.querySelectorAll("input[id], textarea[id], select[id]").forEach(el => {
+    data.byId[el.id] = el.value;
+  });
+  document.querySelectorAll(".psh-item").forEach(el => data.psh.push(el.value));
+  document.querySelectorAll(".table-col-header").forEach(el => data.tableHeaders.push(el.value));
+  document.querySelectorAll("#activity-table-rows .table-data-row").forEach(row => {
+    data.tableRows.push([...row.querySelectorAll("input")].map(i => i.value));
+  });
+  return data;
+}
+
+/** Save current state to localStorage. */
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(captureState()));
+    showSavedIndicator();
+  } catch (e) {
+    console.warn("Auto-save failed:", e);
+  }
+}
+
+/** Restore state from localStorage into the form. */
+function restoreState() {
+  let raw;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
+  if (!raw) return;
+
+  let data;
+  try { data = JSON.parse(raw); } catch (e) { return; }
+
+  if (data.byId) {
+    Object.entries(data.byId).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+  }
+
+  if (Array.isArray(data.psh)) {
+    const items = document.querySelectorAll(".psh-item");
+    data.psh.forEach((val, i) => { if (items[i]) items[i].value = val; });
+  }
+
+  if (Array.isArray(data.tableHeaders)) {
+    const headers = document.querySelectorAll(".table-col-header");
+    data.tableHeaders.forEach((val, i) => { if (headers[i]) headers[i].value = val; });
+  }
+
+  if (Array.isArray(data.tableRows)) {
+    const container = document.getElementById("activity-table-rows");
+    if (container) {
+      // Add rows until we have enough to hold the saved data
+      while (container.querySelectorAll(".table-data-row").length < data.tableRows.length) {
+        addTableRow();
+      }
+      const rows = container.querySelectorAll(".table-data-row");
+      data.tableRows.forEach((rowVals, r) => {
+        const inputs = rows[r] ? rows[r].querySelectorAll("input") : [];
+        rowVals.forEach((val, c) => { if (inputs[c]) inputs[c].value = val; });
+      });
+    }
+  }
+}
+
+/** Debounced auto-save trigger. */
+let _saveTimer;
+function scheduleSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveState, 400);
+}
+
+/** Briefly flash the "Saved ✓" indicator. */
+function showSavedIndicator() {
+  const el = document.getElementById("autosave-indicator");
+  if (!el) return;
+  el.style.opacity = "1";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = "0"; }, 1400);
+}
+
+/** Add a blank 3-column row to the activity table. */
+function addTableRow() {
+  const container = document.getElementById("activity-table-rows");
+  const rowCount = container.querySelectorAll(".table-data-row").length + 1;
+  const div = document.createElement("div");
+  div.className = "table-data-row";
+  div.innerHTML = `
+    <input type="text" placeholder="Row ${rowCount}, Col 1" />
+    <input type="text" placeholder="Row ${rowCount}, Col 2" />
+    <input type="text" placeholder="Row ${rowCount}, Col 3" />
+  `;
+  container.appendChild(div);
+}
+
+/** Clear the entire form and wipe saved state (start a new lesson). */
+function clearForm() {
+  if (!confirm("Clear the form to start a new lesson? Your current entries will be erased.")) return;
+
+  document.querySelectorAll("input[type='text'], input[type='url'], textarea").forEach(el => {
+    el.value = "";
+  });
+  const sel = document.getElementById("lessonNumber");
+  if (sel) sel.selectedIndex = 0;
+
+  // Remove extra activity-table rows beyond the original three
+  const container = document.getElementById("activity-table-rows");
+  if (container) {
+    const rows = [...container.querySelectorAll(".table-data-row")];
+    rows.forEach((row, i) => {
+      if (i >= 3) row.remove();
+      else row.querySelectorAll("input").forEach(inp => (inp.value = ""));
+    });
+  }
+
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+
+  const status = document.getElementById("status-msg");
+  if (status) { status.textContent = ""; status.className = "status-msg"; }
+}
+
 /* ── Wire up ── */
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("generateBtn").addEventListener("click", generateDocx);
+  // Restore saved work first, before listeners are attached
+  restoreState();
 
-  /* Dynamic "Add Row" button for activity table */
-  document.getElementById("add-table-row").addEventListener("click", () => {
-    const container = document.getElementById("activity-table-rows");
-    const rowCount = container.querySelectorAll(".table-data-row").length + 1;
-    const div = document.createElement("div");
-    div.className = "table-data-row";
-    div.innerHTML = `
-      <input type="text" placeholder="Row ${rowCount}, Col 1" />
-      <input type="text" placeholder="Row ${rowCount}, Col 2" />
-      <input type="text" placeholder="Row ${rowCount}, Col 3" />
-    `;
-    container.appendChild(div);
-  });
+  document.getElementById("generateBtn").addEventListener("click", generateDocx);
+  document.getElementById("clearBtn").addEventListener("click", clearForm);
+  document.getElementById("add-table-row").addEventListener("click", addTableRow);
+
+  // Auto-save on any edit (event delegation covers dynamically-added rows)
+  document.addEventListener("input", scheduleSave);
+  document.addEventListener("change", scheduleSave);
 });
